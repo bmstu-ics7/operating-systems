@@ -23,7 +23,7 @@
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
 \lstset {
-    basicstyle=\footnotesize\ttfamily,
+    basicstyle=\tiny\ttfamily,
     breaklines=true,
     tabsize=4,
     escapebegin=\begin{russian}\commentfont,
@@ -118,41 +118,46 @@
 
 \begin{document}
 
-    \begin{titlepage}
+\begin{titlepage}
 
-        \begin{center}
+    \begin{center}
+        \large
+        Государственное образовательное учреждение высшего профессионального образования\\
+        “Московский государственный технический университет имени Н.Э.Баумана”
+        \vspace{5cm}
+
+        \textsc{Отчет}
+
+        \textsc{По лабораторной работе №1 (Часть 1)}
+
+        \textsc{По курсу "Операционные системы"}
+
+        \textsc{Тема: "Дизассемблирование INT 8h"}
+        \vfill
+    \end{center}
+
+    \begin{flushright}
+        \begin{tabular}{l}
             \large
-            Государственное образовательное учреждение высшего профессионального образования\\
-            “Московский государственный технический университет имени Н.Э.Баумана”
-            \vspace{5cm}
-
-            \textsc{Отчет}
-
-            \textsc{По лабораторной работе №1 (Часть 1)}
-
-            \textsc{По курсу "Операционные системы"}
-
-            \textsc{Тема: "Дизассемблирование INT 8h"}
-            \vfill
-        \end{center}
-
-        \begin{flushright}
             Студент: Степанов А.О. \\
-            Група: ИУ7-53 \\
+            \large
+            Группа: ИУ7-53 \\
+            \large
             Преподаватель: Рязанова Н.Ю.
-        \end{flushright}
+        \end{tabular}
+    \end{flushright}
 
-        \begin{center}
+    \begin{center}
 
-            Москва, 2019 г.
+        Москва, 2019 г.
 
-        \end{center}
+    \end{center}
 
-    \end{titlepage}
+\end{titlepage}
 
-    \anonsection{Листинг прерывания INT 8H}
+\anonsection{Листинг прерывания INT 8H}
 
-    \begin{lstlisting}
+\begin{lstlisting}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Вход в прерывание, вызов подпрограммы, сохранение регистров
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -229,7 +234,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 020C:07A8  B0 20				mov	al,20h			; ' '
 020C:07AA  E6 20				out	20h,al			; port 20h, 8259-1 int command
-										;  al = 20h, end of interrupt
+                                    ;  al = 20h, end of interrupt
 020C:07AC  5A					pop	dx
 020C:07AD  58					pop	ax
 020C:07AE  1F					pop	ds
@@ -239,21 +244,18 @@
 ; Переход по метке в сторону завершения работы прерывания
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 020C:07B0  E9 FE99				jmp	$-164h			; (064C)
-    \end{lstlisting}
+\end{lstlisting}
 
-    \begin{lstlisting}
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Выход из прерывания
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+\begin{lstlisting}
 020C:06AC  CF					iret				; Interrupt return
-    \end{lstlisting}
+\end{lstlisting}
 
-    \newpage
+\newpage
 
-    \anonsection{Листинг подпрограммы sub\_2}
+\anonsection{Листинг подпрограммы sub\_2}
 
-    \begin{lstlisting}
-				sub_2		proc	near
+\begin{lstlisting}
+            sub_2		proc	near
 020C:07B9  1E					push	ds
 020C:07BA  50					push	ax
 020C:07BB  B8 0040				mov	ax,40h
@@ -265,11 +267,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 020C:07C1  F7 06 0314 2400			test	word ptr ds:[314h],2400h	; (0040:0314=3200h)
 020C:07C7  75 0C				jnz	loc_22			; Jump if not zero
-020C:07C9  F0> 81 26 0314 FDFF	           lock	and	word ptr ds:[314h],0FDFFh	; (0040:0314=3200h)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Разрешение на вызов прерываний
+; Запрет маскируемых прерываний (сброс if)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+020C:07C9  F0> 81 26 0314 FDFF	           lock	and	word ptr ds:[314h],0FDFFh	; (0040:0314=3200h)
 020C:07D0			loc_21:						;  xref 020C:07D6
 020:07D0  9E					sahf				; Store ah into flags
 020C:07D1  58					pop	ax
@@ -277,33 +279,33 @@
 020C:07D3  EB 03				jmp	short loc_ret_23	; (07D8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Запрет на вызов прерываний
+; Запрет маскируемых прерываний
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 020C:07D5			loc_22:						;  xref 020C:07C7
 020C:07D5  FA					cli				; Disable interrupts
 020C:07D6  EB F8				jmp	short loc_21		; (07D0)
-  
+
 020C:07D8			loc_ret_23:					;  xref 020C:07D3
 020C:07D8  C3					retn
-				sub_2		endp
-    \end{lstlisting}
+            sub_2		endp
+\end{lstlisting}
 
-    \newpage
-    \anonsection{Схема алгоритма работы обработчика прерываний 08h}
+\newpage
+\anonsection{Схема алгоритма работы обработчика прерываний 08h}
 
-    \begin{center}
-        \includegraphics[scale=0.6]{int8h_1}
-    \end{center}
+\begin{center}
+    \includegraphics[scale=0.6]{int8h_1}
+\end{center}
 
-    \begin{center}
-        \includegraphics[scale=0.6]{int8h_2}
-    \end{center}
+\begin{center}
+    \includegraphics[scale=0.6]{int8h_2}
+\end{center}
 
-    \newpage
-    \anonsection{Схема алгоритма работы подпрограммы sub\_2}
+\newpage
+\anonsection{Схема алгоритма работы подпрограммы sub\_2}
 
-    \begin{center}
-        \includegraphics[scale=0.6]{sub}
-    \end{center}
+\begin{center}
+    \includegraphics[scale=0.6]{sub}
+\end{center}
 
 \end{document}
