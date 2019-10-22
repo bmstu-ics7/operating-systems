@@ -4,3 +4,7 @@
 *.fls
 *.log
 *.gz
+*.OBJ
+*.LST
+*.MAP
+*.EXE
