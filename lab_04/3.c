@@ -21,8 +21,11 @@ int main()
     }
     else if (childpid1 == 0)
     {
-        execl("/bin/ls", "ls", "-lah", 0);
-        exit(0);
+        if (execl("/bin/ls", "ls", "-lah", 0) == -1)
+        {
+            perror("Can't exec.\n");
+            exit(1);
+        }
     }
 
     childpid2 = fork();
@@ -34,8 +37,11 @@ int main()
     }
     else if (childpid2 == 0)
     {
-        execl("/bin/cat", "cat", "makefile", 0);
-        exit(0);
+        if (execl("/bin/cat", "cat", "makefile", 0) == -1)
+        {
+            perror("Can't exec.\n");
+            exit(1);
+        }
     }
     else
     {

@@ -21,8 +21,8 @@ int main()
     int status;
     pid_t childpid1, childpid2;
     char buffer[N];
-    char message1[N] = "hello";
-    char message2[N] = "goodbye";
+    char message1[N] = "message child1";
+    char message2[N] = "message child2";
     int channel1[2], channel2[2];
 
     if (pipe(channel1) == -1)
@@ -44,7 +44,8 @@ int main()
 
         close(channel1[0]);
         write(channel1[1], message1, sizeof(message1));
-        while(1);
+        sleep(2);
+        exit(0);
     }
 
     if (pipe(channel2) == -1)
@@ -66,7 +67,8 @@ int main()
 
         close(channel2[0]);
         write(channel2[1], message2, sizeof(message2));
-        while(1);
+        sleep(2);
+        exit(0);
     }
     else
     {
@@ -78,11 +80,12 @@ int main()
 
             close(channel1[1]);
             read(channel1[0], buffer, sizeof(buffer));
-            printf("message = %s\n", buffer);
+            printf("message1 = %s\n", buffer);
 
             close(channel2[1]);
             read(channel2[0], buffer, sizeof(buffer));
-            printf("message = %s\n", buffer);
+            printf("message2 = %s\n", buffer);
+            return 0;
         }
     }
 
