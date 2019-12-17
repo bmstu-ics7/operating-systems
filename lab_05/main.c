@@ -12,7 +12,7 @@ int main(void)
     int status, shmid, semid, ctrl_sb, ctrl_se, ctrl_sf;
     int* shared_bufer;
 
-    shmid = shmget(IPC_PRIVATE, (N + 1) * sizeof(int), IPC_CREAT | PERM);
+    shmid = shmget(IPC_PRIVATE, N * sizeof(int), IPC_CREAT | PERM);
 
     if (shmid == -1)
         shget_error();

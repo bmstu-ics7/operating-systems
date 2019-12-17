@@ -1,5 +1,4 @@
 #include "semafor.h"
-#include <stdio.h>
 
 sembuf take_semafor_producer[2] =
 {
