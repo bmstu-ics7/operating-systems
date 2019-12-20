@@ -9,3 +9,4 @@
 *.MAP
 *.EXE
 *.out
+*.o
