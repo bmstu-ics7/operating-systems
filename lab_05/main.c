@@ -1,25 +1,28 @@
 #include <unistd.h>
 #include <sys/shm.h>
+#include <signal.h>
 #include "consumer.h"
 #include "producer.h"
 
-#define N 10
+#define COUNT 3
+#define N 8
 #define PERM  S_IRWXU | S_IRWXG | S_IRWXO
 
 int main(void)
 {
-    pid_t producer_id, consumer_id;
-    int status, shmid, semid, ctrl_sb, ctrl_se, ctrl_sf;
+    pid_t producers[COUNT];
+    pid_t consumers[COUNT];
+    int status, shmid, semid, ctrl_sb, ctrl_se, ctrl_sf, i;
     int* shared_bufer;
 
-    shmid = shmget(IPC_PRIVATE, N * sizeof(int), IPC_CREAT | PERM);
+    shmid = shmget(IPC_PRIVATE, (N + 2) * sizeof(int), IPC_CREAT | PERM);
 
     if (shmid == -1)
         shget_error();
 
     shared_bufer = shmat(shmid, 0, 0);
 
-    if (*shared_bufer == -1)
+    if (*((int*)shared_bufer) == -1)
         shmat_error();
 
     semid = semget(IPC_PRIVATE, 3, IPC_CREAT | PERM);
@@ -34,22 +37,33 @@ int main(void)
     if (ctrl_sb == -1 || ctrl_se == -1 || ctrl_sf == -1)
         semctl_error();
 
-    producer_id = fork();
+    *shared_bufer = 2;
+    *(shared_bufer + 1) = 2;
 
-    if (producer_id == -1)
-        fork_error();
-    else if (producer_id == 0)
-        producer(shared_bufer, N, semid);
+    for (i = 0; i < COUNT; ++i)
+    {
+        producers[i] = fork();
 
-    consumer_id = fork();
+        if (producers[i] == -1)
+            fork_error();
+        else if (producers[i] == 0)
+            producer(shared_bufer, N, semid);
 
-    if (consumer_id == -1)
-        fork_error();
-    else if (consumer_id == 0)
-        consumer(shared_bufer, N, semid);
+        consumers[i] = fork();
 
-    wait(&status);
-    wait(&status);
+        if (consumers[i] == -1)
+            fork_error();
+        else if (consumers[i] == 0)
+            consumer(shared_bufer, N, semid);
+
+        sleep(2);
+    }
+
+    for (i = 0; i < COUNT; ++i)
+    {
+        wait(&status);
+        wait(&status);
+    }
 
     if (shmctl(shmid, IPC_RMID, NULL) == -1)
         clean_error();
