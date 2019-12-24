@@ -1,14 +1,17 @@
 #include "Writer.h"
 #include "Global.h"
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 
 void startWrite()
 {
+	InterlockedIncrement16(&waitingWriters);
+
 	if (countActiveReaders > 0 || activeWriter) {
 		WaitForSingleObject(canWrite, INFINITE);
 	}
 
+	InterlockedDecrement16(&waitingWriters);
 	activeWriter = true;
 }
 
@@ -17,9 +20,10 @@ void stopWrite()
 	activeWriter = false;
 	ResetEvent(canWrite);
 
-	if (WaitForSingleObject(canRead, 0) == WAIT_OBJECT_0) {
+	if (waitingReaders > 0) {
 		SetEvent(canRead);
-	} else {
+	}
+	else {
 		SetEvent(canWrite);
 	}
 }
@@ -32,14 +36,14 @@ DWORD WINAPI writer(LPVOID mutex)
 		WaitForSingleObject(mutex, INFINITE);
 		variable++;
 		std::cout << "Writer ["
-				  << GetCurrentThreadId() 
-				  << "] --> " << variable << std::endl;
+			<< GetCurrentThreadId()
+			<< "] --> " << variable << std::endl;
 		ReleaseMutex(mutex);
 
 		stopWrite();
 
 		Sleep(100);
 	}
-	
+
 	return 0;
 }

@@ -1,5 +1,5 @@
 #include "Create.h"
-#include <Windows.h>
+#include <windows.h>
 #include "Global.h"
 #include "Errors.h"
 #include "Writer.h"
@@ -16,13 +16,13 @@ void createMutex()
 
 void createEvents()
 {
-	canWrite = CreateEvent(nullptr, true,  false, TEXT("read"));
+	canWrite = CreateEvent(nullptr, true, false, TEXT("read"));
 
 	if (canWrite == nullptr) {
 		eventError();
 	}
 
-	canRead  = CreateEvent(nullptr, false, false, TEXT("write"));
+	canRead = CreateEvent(nullptr, false, false, TEXT("write"));
 
 	if (canRead == nullptr) {
 		eventError();

@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include "Global.h"
 #include "Create.h"
 #include "Errors.h"
