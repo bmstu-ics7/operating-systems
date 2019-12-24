@@ -11,7 +11,7 @@ int main(void)
 {
     pid_t writers[COUNT];
     pid_t readers[COUNT];
-    int status, shmid, semid, ctrl_writers, ctrl_readers, i;
+    int status, shmid, semid, ctrl, i;
     int* shared_bufer;
 
     shmid = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | PERM);
@@ -26,15 +26,14 @@ int main(void)
 
     *shared_bufer = 0;
 
-    semid = semget(IPC_PRIVATE, 2, IPC_CREAT | PERM);
+    semid = semget(IPC_PRIVATE, 4, IPC_CREAT | PERM);
 
     if (semid == -1)
         semget_error();
 
-    ctrl_writers = semctl(semid, WRITERS, SETVAL, 1);
-    ctrl_readers = semctl(semid, READERS, SETVAL, 0);
+    ctrl = semctl(semid, ACTIVE_WRITER, SETVAL, 1);
 
-    if (ctrl_writers == -1 || ctrl_readers == -1)
+    if (ctrl == -1)
         semctl_error();
 
     for (i = 0; i < COUNT; ++i)

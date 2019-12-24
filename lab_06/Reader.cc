@@ -1,21 +1,24 @@
 #include "Reader.h"
 #include "Global.h"
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 
 void startRead()
 {
-	if (activeWriter || WaitForSingleObject(canWrite, 0) == WAIT_OBJECT_0) {
+	InterlockedIncrement16(&waitingReaders);
+
+	if (activeWriter || waitingWriters > 0) {
 		WaitForSingleObject(canRead, INFINITE);
 	}
 
-	++countActiveReaders;
+	InterlockedDecrement16(&waitingReaders);
+	InterlockedIncrement16(&countActiveReaders);
 	SetEvent(canRead);
 }
 
 void stopRead()
 {
-	--countActiveReaders;
+	InterlockedDecrement16(&countActiveReaders);
 
 	if (0 == countActiveReaders) {
 		SetEvent(canWrite);
@@ -29,14 +32,14 @@ DWORD WINAPI reader(LPVOID mutex)
 
 		WaitForSingleObject(mutex, INFINITE);
 		std::cout << "Reader ["
-				  << GetCurrentThreadId()
-				  << "] <-- " << variable << std::endl;
+			<< GetCurrentThreadId()
+			<< "] <-- " << variable << std::endl;
 		ReleaseMutex(mutex);
 
 		stopRead();
 
 		Sleep(100);
 	}
-	
+
 	return 0;
 }

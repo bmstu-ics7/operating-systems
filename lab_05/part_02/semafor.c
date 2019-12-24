@@ -1,23 +1,28 @@
 #include "semafor.h"
 
-sembuf take_semafor_writer[2] =
+sembuf take_semafor_writer[4] =
 {
-    { READERS, ZER, SEM_UNDO },
-    { WRITERS, DEC, SEM_UNDO }
+    { WAIT_WRITERS,  INC, SEM_UNDO },
+    { READERS_COUNT, ZER, SEM_UNDO },
+    { ACTIVE_WRITER, DEC, SEM_UNDO },
+    { WAIT_WRITERS,  DEC, SEM_UNDO }
 };
 
 sembuf free_semafor_writer[1] =
 {
-    { WRITERS, INC, SEM_UNDO }
+    { ACTIVE_WRITER, INC, SEM_UNDO }
 };
 
-sembuf take_semafor_reader[2] =
+sembuf take_semafor_reader[5] =
 {
-    { WRITERS, ZER, SEM_UNDO },
-    { READERS, INC, SEM_UNDO }
+    { WAIT_READERS,  INC, SEM_UNDO },
+    { ACTIVE_WRITER, ZER, SEM_UNDO },
+    { WAIT_WRITERS,  ZER, SEM_UNDO },
+    { READERS_COUNT, INC, SEM_UNDO },
+    { WAIT_READERS,  DEC, SEM_UNDO }
 };
 
 sembuf free_semafor_reader[1] =
 {
-    { READERS, DEC, SEM_UNDO }
+    { READERS_COUNT, DEC, SEM_UNDO }
 };

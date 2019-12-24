@@ -14,9 +14,12 @@ extern HANDLE writers[];
 extern HANDLE readers[];
 
 extern bool activeWriter;
-extern short unsigned int countActiveReaders;
+extern volatile SHORT countActiveReaders;
 
 extern const short unsigned int writerIterations;
 extern const short unsigned int readerIterations;
 
 extern int variable;
+
+extern volatile SHORT waitingWriters;
+extern volatile SHORT waitingReaders;
