@@ -6,7 +6,7 @@ void reader(int* shared_bufer, const int semid)
     {
         sleep(1);
 
-        if (semop(semid, take_semafor_reader, 2) == -1)
+        if (semop(semid, take_semafor_reader, 5) == -1)
             semop_error();
 
         printf("Reader [%d] <-- %d\n", getpid(), *shared_bufer);
