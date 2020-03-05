@@ -9,20 +9,14 @@ int already_running(void)
 
     if (fd < 0)
     {
-        syslog(LOG_ERR, "невозможно открыть %s: %s", LOCKFILE, strerror(errno));
-        exit(1);
+        return(-1);
     }
 
-    if (flock(fd) < 0)
-    {
-        if (errno ==  EACCES || errno == EAGAIN)
-        {
-            close(fd);
-            return(1);
-        }
+    flock(fd, LOCK_EX | LOCK_NB);
 
-        syslog(LOG_ERR, "невозможно установить блокировку на %s: %s", LOCKFILE, strerror(errno));
-        exit(1);
+	if (errno == EWOULDBLOCK)
+    {
+        return(-1);
     }
 
     ftruncate(fd, 0);
