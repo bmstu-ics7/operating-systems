@@ -22,11 +22,6 @@ int stack_push(struct stack *stack, char *element)
     return 0;
 }
 
-const char *stack_top(struct stack *stack)
-{
-    return stack->data[stack->size - 1];
-}
-
 const char *stack_pop(struct stack *stack)
 {
     return stack->data[--stack->size];
