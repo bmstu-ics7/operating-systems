@@ -35,46 +35,43 @@ int dopath(Function *func)
                 printf("Cannot return into .. from");
                 return -1;
             }
-
-            continue;
         }
-
-        if (lstat(filename, &statbuf) < 0)
+        else if (lstat(filename, &statbuf) < 0)
         {
             func(filename, &statbuf, FTW_NS, 0);
-            continue;
         }
-
-        if (S_ISDIR(statbuf.st_mode) == 0)
+        else if (S_ISDIR(statbuf.st_mode) == 0)
         {
             func(filename, &statbuf, FTW_F, 0);
-            continue;
         }
-
-        func(filename, &statbuf, FTW_D, len);
-
-        dp = opendir(filename);
-
-        if (dp == NULL)
+        else
         {
-            func(filename, &statbuf, FTW_DNR, 0);
-        }
+            func(filename, &statbuf, FTW_D, len);
 
-        if (chdir(filename) < 0)
-        {
-            printf("Cannot chdir into %s\n", filename);
-            func(filename, &statbuf, FTW_DNR, 0);
-            continue;
-        }
+            dp = opendir(filename);
 
-        ++len;
-
-        stack_push(stack, "..");
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (strcmp(dirp->d_name, ".") != 0 && strcmp(dirp->d_name, "..") != 0)
+            if (dp == NULL)
             {
-                stack_push(stack, dirp->d_name);
+                func(filename, &statbuf, FTW_DNR, 0);
+            }
+
+            if (chdir(filename) < 0)
+            {
+                printf("Cannot chdir into %s\n", filename);
+                func(filename, &statbuf, FTW_DNR, 0);
+            }
+            else
+            {
+                ++len;
+
+                stack_push(stack, "..");
+                while ((dirp = readdir(dp)) != NULL)
+                {
+                    if (strcmp(dirp->d_name, ".") != 0 && strcmp(dirp->d_name, "..") != 0)
+                    {
+                        stack_push(stack, dirp->d_name);
+                    }
+                }
             }
         }
     }
