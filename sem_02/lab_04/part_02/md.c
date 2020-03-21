@@ -72,8 +72,8 @@ static int md_init(void)
     }
     else
     {
-        memset(cookie_pot, 0, MAX_COOKIE_LENGTH );
-        proc_entry = proc_create("fortune", 0644, NULL, &ops );
+        memset(cookie_pot, 0, MAX_COOKIE_LENGTH);
+        proc_entry = proc_create("fortune", 0644, NULL, &ops);
 
         if (proc_entry == NULL)
         {
@@ -111,6 +111,8 @@ static int md_init(void)
 static void md_exit(void)
 {
     proc_remove(proc_entry);
+    proc_remove(proc_directory);
+    proc_remove(proc_link);
     vfree(cookie_pot);
     printk(KERN_INFO "fortune: Module unloaded.\n");
 }
