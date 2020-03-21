@@ -16,9 +16,8 @@ int dopath(Function *func)
     struct stat     statbuf;
     struct dirent   *dirp;
     DIR             *dp;
-    int             ret;
 
-    int             len = 0;
+    int             len = -1;
 
     struct stack *stack = stack_create();
     stack_push(stack, ".");
@@ -31,118 +30,51 @@ int dopath(Function *func)
         {
             len--;
 
-            if (chdir("..") < 0)
+            if (chdir(filename) < 0)
             {
                 printf("Cannot return into .. from");
                 return -1;
             }
-
-            continue;
-/*
-            if (closedir(dp) < 0)
-            {
-                printf("Can't close directory %s\n", filename);
-                return -1;
-            }
-*/
         }
-
-        if (lstat(filename, &statbuf) < 0)
+        else if (lstat(filename, &statbuf) < 0)
         {
             func(filename, &statbuf, FTW_NS, 0);
-            continue;
         }
-
-        if (S_ISDIR(statbuf.st_mode) == 0)
+        else if (S_ISDIR(statbuf.st_mode) == 0)
         {
             func(filename, &statbuf, FTW_F, 0);
-            continue;
         }
-
-        ret = func(filename, &statbuf, FTW_D, len);
-
-        dp = opendir(filename);
-
-        if (dp == NULL)
+        else
         {
-            printf("DEBUG2");
-            func(filename, &statbuf, FTW_DNR, 0);
-        }
+            func(filename, &statbuf, FTW_D, len);
 
-        if (chdir(filename) < 0)
-        {
-            printf("Cannot chdir into %s\n", filename);
-            func(filename, &statbuf, FTW_DNR, 0);
-            continue;
-        }
+            dp = opendir(filename);
 
-        ++len;
-
-        stack_push(stack, "..");
-        while ((dirp = readdir(dp)) != NULL)
-        {
-            if (strcmp(dirp->d_name, ".") != 0 && strcmp(dirp->d_name, "..") != 0)
+            if (dp == NULL)
             {
-                stack_push(stack, dirp->d_name);
+                func(filename, &statbuf, FTW_DNR, 0);
+            }
+
+            if (chdir(filename) < 0)
+            {
+                printf("Cannot chdir into %s\n", filename);
+                func(filename, &statbuf, FTW_DNR, 0);
+            }
+            else
+            {
+                ++len;
+
+                stack_push(stack, "..");
+                while ((dirp = readdir(dp)) != NULL)
+                {
+                    if (strcmp(dirp->d_name, ".") != 0 && strcmp(dirp->d_name, "..") != 0)
+                    {
+                        stack_push(stack, dirp->d_name);
+                    }
+                }
             }
         }
     }
 
-    return ret;
+    return 0;
 }
-
-/*
-int dopath(Function *func, char *filename, int len)
-{
-    struct stat     statbuf;
-    struct dirent   *dirp;
-    DIR             *dp;
-    int             ret;
-
-    if (lstat(filename, &statbuf) < 0)
-        return func(filename, &statbuf, FTW_NS, 0);
-
-    if (S_ISDIR(statbuf.st_mode) == 0)
-        return func(filename, &statbuf, FTW_F, 0);
-
-    ret = func(filename, &statbuf, FTW_D, len);
-
-    if (ret != 0)
-        return ret;
-
-    dp = opendir(filename);
-    if (dp == NULL)
-    {
-        printf("DEBUG2");
-        return func(filename, &statbuf, FTW_DNR, 0);
-    }
-
-    if (chdir(filename) < 0)
-    {
-        printf("Cannot chdir into %s\n", filename);
-        return func(filename, &statbuf, FTW_DNR, 0);
-    }
-
-    ++len;
-
-    while ((dirp = readdir(dp)) != NULL)
-    {
-        if (strcmp(dirp->d_name, ".") != 0 && strcmp(dirp->d_name, "..") != 0)
-            dopath(func, dirp->d_name, len);
-    }
-
-    if (chdir("..") < 0)
-    {
-        printf("Cannot return into .. from %s", filename);
-        return -1;
-    }
-
-    if (closedir(dp) < 0)
-    {
-        printf("Can't close directory %s\n", filename);
-        return -1;
-    }
-
-    return ret;
-}
-*/

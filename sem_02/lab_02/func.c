@@ -15,7 +15,8 @@ int print_func
         for (i = 0; i < len; i++)
             printf("│   ");
 
-        printf("├───");
+        if (len >= 0) printf("├───");
+
         printf("%s\n", pathname);
     }
     else if (type == FTW_DNR || type == FTW_NS)

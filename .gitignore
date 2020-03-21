@@ -364,3 +364,12 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Kernel objects ignore
+*.ko
+*.mod.c
+*.mod.o
+*.order
+*.symvers
+*.cmd
+*.mod
