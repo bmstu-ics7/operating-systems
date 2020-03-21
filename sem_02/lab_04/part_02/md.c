@@ -12,13 +12,15 @@ MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Liran B.H");
 
 static struct proc_dir_entry *proc_entry;
+static struct proc_dir_entry *proc_directory;
+static struct proc_dir_entry *proc_link;
 static char *cookie_pot;
 static int cookie_index;
 static int next_fortune;
 
-static ssize_t fortune_write(struct file *file, const char __user *buff, size_t len, loff_t *data)
+static ssize_t fortune_write(struct file *f, const char __user *buff, size_t len, loff_t *data)
 {
-    int space_available = (MAX_COOKIE_LENGTH-cookie_index)+1;
+    int space_available = (MAX_COOKIE_LENGTH - cookie_index) + 1;
 
     if (len > space_available)
     {
@@ -26,36 +28,35 @@ static ssize_t fortune_write(struct file *file, const char __user *buff, size_t 
         return -ENOSPC;
     }
 
-    /*if (*/copy_from_user(&cookie_pot[cookie_index], buff, len);/*)*/
-    /*{
+    if (copy_from_user(&cookie_pot[cookie_index], buff, len))
+    {
         return -EFAULT;
-    }*/
+    }
 
     cookie_index += len;
     cookie_pot[cookie_index-1] = 0;
 
-    printk(KERN_INFO "fortune: write to file");
-
     return len;
 }
 
-static ssize_t fortune_read(struct file *file, char __user *buff, size_t len, loff_t *data)
+static ssize_t fortune_read(struct file *f, char __user *buff, size_t len, loff_t *data)
 {
+    if (*data > 0) return 0;
+
     if (next_fortune >= cookie_index)
         next_fortune = 0;
 
-    len = copy_to_user(&cookie_pot[next_fortune], buff, len);
-    // len = sprintf(page, "%s\n", &cookie_pot[next_fortune]);
+    len = copy_to_user(buff, &cookie_pot[next_fortune], len);
     next_fortune += len;
 
-    printk(KERN_INFO "fortune: read from file");
+    *data = 1;
 
     return len;
 }
 
 static struct file_operations ops =
 {
-    .owner =  THIS_MODULE,
+    .owner = THIS_MODULE,
     .read = fortune_read,
     .write = fortune_write,
 };
@@ -71,8 +72,8 @@ static int md_init(void)
     }
     else
     {
-        memset( cookie_pot, 0, MAX_COOKIE_LENGTH );
-        proc_entry = proc_create( "fortune", 0644, NULL, &ops );
+        memset(cookie_pot, 0, MAX_COOKIE_LENGTH );
+        proc_entry = proc_create("fortune", 0644, NULL, &ops );
 
         if (proc_entry == NULL)
         {
@@ -85,6 +86,22 @@ static int md_init(void)
             cookie_index = 0;
             next_fortune = 0;
             printk(KERN_INFO "fortune: Module loaded.\n");
+
+            proc_directory = proc_mkdir("fortune_dir", NULL);
+
+            if (proc_directory == NULL)
+            {
+                ret = -ENOMEM;
+                printk(KERN_ERR "fortune: Couldn't create dir");
+            }
+
+            proc_link = proc_symlink("fortune_link", NULL, "fortune");
+
+            if (proc_link == NULL)
+            {
+                ret = -ENOMEM;
+                printk(KERN_ERR "fortune: Couldn't create symlink");
+            }
         }
     }
 
@@ -93,7 +110,7 @@ static int md_init(void)
 
 static void md_exit(void)
 {
-    remove_proc_entry("fortune", proc_entry);
+    proc_remove(proc_entry);
     vfree(cookie_pot);
     printk(KERN_INFO "fortune: Module unloaded.\n");
 }
