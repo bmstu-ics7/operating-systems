@@ -1,5 +1,61 @@
 #include "print_file.h"
 
+const char *stat_names[] =
+{
+    "pid",
+    "comm",
+    "state",
+    "ppid",
+    "pgrp",
+    "session",
+    "tty_nr",
+    "tpgid",
+    "flags",
+    "minflt",
+    "cminflt",
+    "majflt",
+    "cmajflt",
+    "utime",
+    "stime",
+    "cutime",
+    "cstime",
+    "priority",
+    "nice",
+    "num_threads",
+    "itrealvalue",
+    "starttime",
+    "vsize",
+    "rss",
+    "rsslim",
+    "startcode",
+    "endcode",
+    "startstack",
+    "kstkesp",
+    "kstkeip",
+    "signal",
+    "blocked",
+    "sigignore",
+    "sigcatch",
+    "wchan",
+    "nswap",
+    "сnswap",
+    "exit_signal",
+    "processor",
+    "rt_priority",
+    "policy",
+    "delayacct_blkio_ticks",
+    "guest_time",
+    "cguest_time",
+    "start_data",
+    "end_data",
+    "start_brk",
+    "arg_start",
+    "arg_end",
+    "env_start",
+    "env_end ",
+    "exit_code",
+};
+
 int print_file(const char *filename)
 {
     char buf[BUF_SIZE] = { 0 };
@@ -32,6 +88,7 @@ int print_file(const char *filename)
 
 int print_stat()
 {
+    int i;
     char buf[BUF_SIZE] = { 0 };
     FILE *f = fopen("/proc/self/stat", "r");
 
@@ -44,9 +101,10 @@ int print_stat()
     fread(buf, 1, BUF_SIZE, f);
     char *pch = strtok(buf, " ");
 
+    i = 0;
     while(pch != NULL)
     {
-        printf("%s\n", pch);
+        printf("%s -> %s\n", stat_names[i++], pch);
         pch = strtok(NULL, " ");
     }
 

@@ -5,6 +5,8 @@
 #include <string.h>
 #include "buf_size.h"
 
+extern const char *stat_names[];
+
 int print_file(const char *filename);
 int print_stat();
 
