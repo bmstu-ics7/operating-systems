@@ -204,3 +204,20 @@ struct _IO_FILE
 \begin{lstlisting}[caption={\ttfamily typedef} в файле {\ttfamily FILE.h}]
 typedef struct _IO_FILE FILE;
 \end{lstlisting}
+
+\section{ВЫВОДЫ}
+
+Исходя из рассуждений по данной лабораторной можно сделать следующие выводы:
+
+\begin{itemize}
+    \item Функции {\ttfamily fopen(), fclose(), fscanf(), fprintf()} являются
+        обертками, которые выполняют системные вызовы
+        {\ttfamily open(), close(), read(), write()} соответственно;
+    \item Лучше использовать функцию {\ttfamily fopen()}, чем {\ttfamily open()},
+        так как {\ttfamily fopen()} выполняет ввод-вывод с буферизацией, что
+        можнет оказаться значительно быстрее, так же структура {\ttfamily FILE}
+        позволяет использовать функции {\ttfamily stdio.h};
+    \item Стоит помнить о буферизации и вовремя использовать {\ttfamily fclose()}
+        для записи буферизованных данных в файл;
+    \item Необходимо следить за режимом, в котором открывается поток.
+\end{itemize}
