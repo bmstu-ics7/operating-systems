@@ -13,3 +13,6 @@ client: $(OBJ_CLIENT)
 
 server: $(OBJ_SERVER)
 	$(CC) $(FLAGS) $^ -o server.out
+
+clean:
+	rm *.o
