@@ -22,6 +22,7 @@ int main()
     size_t len;
     struct sockaddr srvr_name;
     char *buffer;
+    char message[SIZE_BUFFER];
 
     signal(SIGINT, close_app);
 
@@ -37,7 +38,8 @@ int main()
     {
         printf("Type message: ");
         getline(&buffer, &len, stdin);
-        sendto(sockfd, buffer, strlen(buffer), 0, &srvr_name, strlen(srvr_name.sa_data) + sizeof(srvr_name.sa_family) + 1);
+        sprintf(message, "[%d] : %s", getpid(), buffer);
+        sendto(sockfd, message, strlen(message), 0, &srvr_name, strlen(srvr_name.sa_data) + sizeof(srvr_name.sa_family) + 1);
     }
 
     return 0;

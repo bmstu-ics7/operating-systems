@@ -55,7 +55,7 @@ int main()
             return error();
 
         buffer[size] = '\0';
-        printf("MESSAGE RECIEVED: %s", buffer);
+        printf("%s", buffer);
     }
 
     return 0;
