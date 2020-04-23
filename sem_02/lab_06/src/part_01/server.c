@@ -18,6 +18,7 @@ void close_app()
     if (unlink(SOCK_NAME) < 0)
         exit(error());
 
+    printf("\nSocket closed\n");
     exit(0);
 }
 
@@ -54,7 +55,7 @@ int main()
             return error();
 
         buffer[size] = '\0';
-        printf("MESSAGE RECIEVED: %s\n", buffer);
+        printf("MESSAGE RECIEVED: %s", buffer);
     }
 
     return 0;

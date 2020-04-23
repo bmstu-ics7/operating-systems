@@ -1,21 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <strings.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <netinet/in.h>
 #include <signal.h>
 #include "error.h"
 
 #define SIZE_BUFFER 100
-#define LISTENQ 1024
-#define MAX_CLIENTS 20
+#define CLIENTS 100
 
 int sockfd;
 int maxi, maxfd;
-int pid_client[MAX_CLIENTS];
+int pid_client[CLIENTS];
 
 void close_signal()
 {
@@ -126,10 +123,12 @@ int main(int argc, char **argv)
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(atoi(argv[1]));
 
-    if (bind(sockfd, (struct sockaddr *) &server, sizeof(server)) < 0)
+    bind(sockfd, (struct sockaddr *) &server, sizeof(server));
+
+    if (errno != 0)
         return errno;
 
-    listen(sockfd, LISTENQ);
+    listen(sockfd, CLIENTS);
 
     maxfd = sockfd;
     maxi = -1;

@@ -6,9 +6,21 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <signal.h>
 #include "error.h"
 
 #define SIZE_BUFFER 100
+
+int sockfd;
+
+void close_signal()
+{
+    if (close(sockfd) < 0)
+        exit(error());
+
+    printf("\nSocket closed\n");
+    exit(0);
+}
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +30,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int sockfd;
+    signal(SIGINT, close_signal);
+
     struct hostent *server;
     struct sockaddr_in serv_addr;
     char *buffer = NULL;
@@ -39,7 +52,9 @@ int main(int argc, char *argv[])
     strncpy((char *)&serv_addr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     serv_addr.sin_port = htons(atoi(argv[2]));
 
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+
+    if (errno != 0)
         return error();
 
     buffer = calloc(10, 1);
@@ -49,7 +64,7 @@ int main(int argc, char *argv[])
     free(buffer);
     buffer = NULL;
 
-    printf("Type message:\n");
+    printf("Type message: ");
     getline(&buffer, &len, stdin);
     buffer[len] = '\0';
 
@@ -65,8 +80,6 @@ int main(int argc, char *argv[])
         getline(&buffer, &len, stdin);
         buffer[len] = '\0';
     }
-
-    close(sockfd);
 
     return 0;
 }
