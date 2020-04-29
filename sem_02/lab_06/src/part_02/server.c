@@ -25,7 +25,7 @@ void close_signal()
 
 int connection(int client[FD_SETSIZE], fd_set *allset, fd_set *rset)
 {
-    int i;
+    int i = 0;
     int connfd;
     int message_len;
     char buffer[SIZE_BUFFER];
@@ -37,14 +37,13 @@ int connection(int client[FD_SETSIZE], fd_set *allset, fd_set *rset)
         if (connfd < 0)
             return errno;
 
-        for (i = 0; i < FD_SETSIZE; i++)
+        do
         {
             if (client[i] < 0)
-            {
                 client[i] = connfd;
-                break;
-            }
+            i++;
         }
+        while(client[i] >= 0);
 
         if (i == FD_SETSIZE)
             return errno;
