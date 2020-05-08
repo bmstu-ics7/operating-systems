@@ -52,7 +52,7 @@ static struct inode *wfs_make_inode(struct super_block *sb, int mode)
 
 static void wfs_put_super(struct super_block * sb)
 {
-    printk(KERN_DEBUG "wfs super block destroyed!\n");
+    printk(KERN_DEBUG "[wfs] super block destroyed!\n");
 }
 
 static struct super_operations const wfs_super_ops = {
@@ -73,7 +73,7 @@ static int wfs_fill_sb(struct super_block *sb, void *data, int silent)
     root = wfs_make_inode(sb, S_IFDIR | 0755);
     if (!root)
     {
-        printk (KERN_ERR "wfs inode allocation failed!\n");
+        printk (KERN_ERR "[wfs] inode allocation failed!\n");
         return -ENOMEM;
     }
 
@@ -83,7 +83,7 @@ static int wfs_fill_sb(struct super_block *sb, void *data, int silent)
     sb->s_root = d_make_root(root);
     if (!sb->s_root)
     {
-        printk(KERN_ERR "wfs root creation failed!\n");
+        printk(KERN_ERR "[wfs] root creation failed!\n");
         iput(root);
         return -ENOMEM;
     }
@@ -96,9 +96,9 @@ static struct dentry* wfs_mount(struct file_system_type *type, int flags, char c
     struct dentry* const entry = mount_nodev(type, flags, data, wfs_fill_sb);
 
     if (IS_ERR(entry))
-        printk(KERN_ERR "wfs mounting failed!\n");
+        printk(KERN_ERR "[wfs] mounting failed!\n");
     else
-        printk(KERN_DEBUG "wfs mounted!\n");
+        printk(KERN_DEBUG "[wfs] mounted!\n");
 
     return entry;
 }
@@ -117,7 +117,7 @@ static int __init wfs_init(void)
 
     if (size < 0)
     {
-        printk(KERN_ERR "invalid argument\n");
+        printk(KERN_ERR "[wfs] invalid argument\n");
         return -EINVAL;
     }
 
@@ -125,7 +125,7 @@ static int __init wfs_init(void)
 
     if (line == NULL)
     {
-        printk(KERN_ERR "kmalloc error\n" );
+        printk(KERN_ERR "[wfs] kmalloc error\n" );
         kfree(line);
         return -ENOMEM;
     }
@@ -139,7 +139,7 @@ static int __init wfs_init(void)
 
     if (cache == NULL)
     {
-        printk(KERN_ERR "kmem_cache_create error\n" );
+        printk(KERN_ERR "[wfs] kmem_cache_create error\n" );
         kmem_cache_destroy(cache);
         kfree(line);
         return -ENOMEM;
@@ -148,7 +148,7 @@ static int __init wfs_init(void)
     for (i = 0; i < number; i++)
     {
         if (NULL == (line[i] = kmem_cache_alloc(cache, GFP_KERNEL))) {
-            printk(KERN_ERR "kmem_cache_alloc error\n");
+            printk(KERN_ERR "[wfs] kmem_cache_alloc error\n");
 
             for (i = 0; i < number; i++)
             {
@@ -161,19 +161,19 @@ static int __init wfs_init(void)
         }
     }
 
-    printk(KERN_INFO "allocate %d objects into slab: %s\n", number, SLABNAME);
-    printk(KERN_INFO "object size %d bytes, full size %ld bytes\n", size, (long)size * number);
-    printk(KERN_INFO "constructor called %d times\n", sco);
+    printk(KERN_INFO "[wfs] allocate %d objects into slab: %s\n", number, SLABNAME);
+    printk(KERN_INFO "[wfs] object size %d bytes, full size %ld bytes\n", size, (long)size * number);
+    printk(KERN_INFO "[wfs] constructor called %d times\n", sco);
 
     ret = register_filesystem(&wfs_type);
 
     if (ret!= 0)
     {
-        printk(KERN_ERR "wfs_MODULE cannot register filesystem!\n");
+        printk(KERN_ERR "[wfs] module cannot register filesystem!\n");
         return ret;
     }
 
-    printk(KERN_DEBUG "wfs_MODULE loaded!\n");
+    printk(KERN_DEBUG "[wfs] module loaded!\n");
     return 0;
 }
 
@@ -191,9 +191,9 @@ static void __exit wfs_exit(void)
     ret = unregister_filesystem(&wfs_type);
 
     if (ret!= 0)
-        printk(KERN_ERR "wfs_MODULE cannot unregister filesystem!\n");
+        printk(KERN_ERR "[wfs] module cannot unregister filesystem!\n");
 
-    printk(KERN_DEBUG "wfs_MODULE unloaded!\n");
+    printk(KERN_DEBUG "[wfs] module unloaded!\n");
 }
 
 module_init(wfs_init);
