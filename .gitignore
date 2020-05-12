@@ -373,3 +373,6 @@ MigrationBackup/
 *.symvers
 *.cmd
 *.mod
+
+# Testing directory
+**/test/**
