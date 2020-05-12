@@ -124,18 +124,13 @@ static int __init wfs_init(void)
         return -EINVAL;
     }
 
-    line = kmalloc(sizeof(void*) * number, GFP_KERNEL);
+    line = kmalloc(sizeof(void*), GFP_KERNEL);
 
     if (line == NULL)
     {
         printk(KERN_ERR "[wfs] kmalloc error\n" );
         kfree(line);
         return -ENOMEM;
-    }
-
-    for (i = 0; i < number; i++)
-    {
-        line[i] = NULL;
     }
 
     cache = kmem_cache_create(SLABNAME, size, 0, SLAB_HWCACHE_ALIGN, co);
@@ -148,26 +143,23 @@ static int __init wfs_init(void)
         return -ENOMEM;
     }
 
-    for (i = 0; i < number; i++)
+    *line = kmem_cache_alloc(cache, GFP_KERNEL)
+    if (*line == NULL)
     {
-        if (NULL == (line[i] = kmem_cache_alloc(cache, GFP_KERNEL))) {
-            printk(KERN_ERR "[wfs] kmem_cache_alloc error\n");
+        printk(KERN_ERR "[wfs] kmem_cache_alloc error\n");
 
-            for (i = 0; i < number; i++)
-            {
-                kmem_cache_free(cache, line[i]);
-            }
+        kmem_cache_free(cache, *line);
+        kmem_cache_destroy(cache);
 
-            kmem_cache_destroy(cache);
-            kfree(line);
-            return -ENOMEM;
-        }
+        kfree(*line);
+
+        return -ENOMEM;
     }
 
     printk(KERN_INFO "[wfs] allocate %d objects into slab: %s\n",
-        number, SLABNAME);
+        1, SLABNAME);
     printk(KERN_INFO "[wfs] object size %d bytes, full size %ld bytes\n",
-        size, (long)size * number);
+        size, size);
     printk(KERN_INFO "[wfs] constructor called %d times\n", sco);
 
     ret = register_filesystem(&wfs_type);
@@ -215,6 +207,12 @@ module_exit(wfs_exit);
     \centering
     \includegraphics[scale=0.45]{img/mount.png}
     \caption{Монтирование файловой системы}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/root.png}
+    \caption{Файловая система в дереве каталогов}
 \end{figure}
 
 \begin{figure}[H]
