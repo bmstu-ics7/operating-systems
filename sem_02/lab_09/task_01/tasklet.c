@@ -4,17 +4,20 @@
 #include <linux/interrupt.h>
 #include <linux/timex.h>
 
-static int irq = 0;
+static int irq = 1;
 static int irq_call_count = 0;
 static int dev_id;
 char tasklet_data[] = "tasklet_function was called";
 
-void tasklet_function(unsigned long data)
-{
-    printk(KERN_INFO "[tasklet_module] tasklet function called\n");
-}
+void tasklet_function(unsigned long data);
 
 DECLARE_TASKLET(tasklet, tasklet_function, (unsigned long)&tasklet_data);
+
+void tasklet_function(unsigned long data)
+{
+    printk(KERN_INFO "[tasklet_module] Tasklet: { state: %ld, count: %d, data: %s }",
+        tasklet.state, atomic_read(&tasklet.count), (char *)tasklet.data);
+}
 
 static irqreturn_t interrupt_handler(int irq, void *dev_id)
 {
