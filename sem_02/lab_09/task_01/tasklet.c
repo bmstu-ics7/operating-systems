@@ -31,7 +31,7 @@ static int __init tasklet_module_init(void)
 {
     int ret = request_irq(irq, interrupt_handler, IRQF_SHARED, "interrupt", &dev_id);
 
-    if (IRQ_RETVAL(ret) != IRQ_HANDLED)
+    if (ret)
     {
         printk(KERN_ERR "[tasklet_module] error while handle irq");
         return -1;
