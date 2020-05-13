@@ -42,11 +42,11 @@ static int __init tasklet_module_init(void)
 
     if (ret)
     {
-        printk(KERN_ERR "[tasklet_module] error while handle irq");
+        printk(KERN_ERR "[tasklet_module] error while handle irq\n");
         return -1;
     }
 
-    printk(KERN_INFO "[tasklet_module] success load");
+    printk(KERN_INFO "[tasklet_module] success load\n");
     return 0;
 }
 
@@ -54,7 +54,7 @@ static void __exit tasklet_module_exit(void)
 {
     tasklet_kill(&tasklet);
     free_irq(irq, &dev_id);
-    printk(KERN_INFO "[tasklet_module] unload module");
+    printk(KERN_INFO "[tasklet_module] unload module\n");
 }
 
 module_init(tasklet_module_init);

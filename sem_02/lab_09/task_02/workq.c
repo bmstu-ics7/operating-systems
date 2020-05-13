@@ -41,7 +41,7 @@ static int __init workqueue_module_init(void)
 
     if (ret)
     {
-        printk(KERN_ERR "[workqueue_module] error while handle irq");
+        printk(KERN_ERR "[workqueue_module] error while handle irq\n");
         return -1;
     }
 
@@ -49,11 +49,11 @@ static int __init workqueue_module_init(void)
 
     if (workq == NULL)
     {
-        printk(KERN_ERR "[workqueue_module] error while create workqueue");
+        printk(KERN_ERR "[workqueue_module] error while create workqueue\n");
         return -1;
     }
 
-    printk(KERN_INFO "[workqueue_module] success load");
+    printk(KERN_INFO "[workqueue_module] success load\n");
     return 0;
 }
 
@@ -62,7 +62,7 @@ static void __exit workqueue_module_exit(void)
     flush_workqueue(workq);
     destroy_workqueue(workq);
     free_irq(irq, &dev_id);
-    printk(KERN_INFO "[workqueue_module] unload module");
+    printk(KERN_INFO "[workqueue_module] unload module\n");
 }
 
 module_init(workqueue_module_init);
