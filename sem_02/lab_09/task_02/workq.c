@@ -3,6 +3,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/workqueue.h>
+#include <linux/time.h>
 
 MODULE_AUTHOR("Alexander Stepanov");
 MODULE_LICENSE("GPL");
@@ -14,7 +15,14 @@ static struct workqueue_struct *workq = NULL;
 
 void work_function(struct work_struct *work)
 {
-    printk(KERN_INFO "[workqueue_module] work: { data: %ld }", atomic_long_read(&work->data));
+    struct timeval t;
+    struct tm brocken;
+    do_gettimeofday(&t);
+    time_to_tm(t.tv_sec, 0, &brocken);
+
+    printk(KERN_INFO "[workqueue_module] work: { data: %ld }, current_time: %d:%d:%d:%ld\n",
+        atomic_long_read(&work->data),
+        brocken.tm_hour + 3, brocken.tm_min, brocken.tm_sec, t.tv_usec);
 }
 
 DECLARE_WORK(work, work_function);

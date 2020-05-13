@@ -2,6 +2,7 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+#include <linux/time.h>
 
 MODULE_AUTHOR("Alexander Stepanov");
 MODULE_LICENSE("GPL");
@@ -17,8 +18,14 @@ DECLARE_TASKLET(tasklet, tasklet_function, (unsigned long)&tasklet_data);
 
 void tasklet_function(unsigned long data)
 {
-    printk(KERN_INFO "[tasklet_module] Tasklet: { state: %ld, count: %d, data: %s }",
-        tasklet.state, atomic_read(&tasklet.count), (char *)tasklet.data);
+    struct timeval t;
+    struct tm brocken;
+    do_gettimeofday(&t);
+    time_to_tm(t.tv_sec, 0, &brocken);
+
+    printk(KERN_INFO "[tasklet_module] Tasklet: { state: %ld, count: %d, data: %s }, current_time: %d:%d:%d:%ld\n",
+        tasklet.state, atomic_read(&tasklet.count), (char *)tasklet.data,
+        brocken.tm_hour + 3, brocken.tm_min, brocken.tm_sec, t.tv_usec);
 }
 
 static irqreturn_t interrupt_handler(int irq, void *dev_id)
