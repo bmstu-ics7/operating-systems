@@ -2,7 +2,6 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
-#include <linux/timex.h>
 
 static int irq = 1;
 static int irq_call_count = 0;
@@ -29,7 +28,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id)
 
 static int __init tasklet_module_init(void)
 {
-    int ret = request_irq(irq, interrupt_handler, IRQF_SHARED, "interrupt", &dev_id);
+    int ret = request_irq(irq, interrupt_handler, IRQF_SHARED, "interrupt_handler", &dev_id);
 
     if (ret)
     {
