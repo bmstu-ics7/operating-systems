@@ -4,6 +4,9 @@
 #include <linux/interrupt.h>
 #include <linux/workqueue.h>
 
+MODULE_AUTHOR("Alexander Stepanov");
+MODULE_LICENSE("GPL");
+
 static int irq = 1;
 static int irq_call_count = 0;
 static int dev_id;
@@ -26,7 +29,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id)
 
 static int __init workqueue_module_init(void)
 {
-    int ret = request_irq(irq, interrupt_handler, IRQF_SHARED, "interrupt_handler", &dev_id);
+    int ret = request_irq(irq, interrupt_handler, IRQF_SHARED, "workqueue_interrupt_handler", &dev_id);
 
     if (ret)
     {
