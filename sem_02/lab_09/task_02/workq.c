@@ -5,10 +5,12 @@
 #include <linux/workqueue.h>
 #include <linux/time.h>
 
+#define HANDLEDIRQ 1
+
 MODULE_AUTHOR("Alexander Stepanov");
 MODULE_LICENSE("GPL");
 
-static int irq = 1;
+static int irq = HANDLEDIRQ;
 static int irq_call_count = 0;
 static int dev_id;
 static struct workqueue_struct *workq = NULL;
@@ -29,10 +31,17 @@ DECLARE_WORK(work, work_function);
 
 static irqreturn_t interrupt_handler(int irq, void *dev_id)
 {
-    irq_call_count++;
-    queue_work(workq, &work);
-    printk(KERN_INFO "[workqueue_module] irq call count = %d\n", irq_call_count);
-    return IRQ_NONE;
+    if (irq == HANDLEDIRQ)
+    {
+        irq_call_count++;
+        queue_work(workq, &work);
+        printk(KERN_INFO "[workqueue_module] irq call count = %d\n", irq_call_count);
+        return IRQ_HANDLED;
+    }
+    else
+    {
+        return IRQ_NONE;
+    }
 }
 
 static int __init workqueue_module_init(void)
