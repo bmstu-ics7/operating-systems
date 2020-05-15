@@ -4,10 +4,12 @@
 #include <linux/interrupt.h>
 #include <linux/time.h>
 
+#define HANDLEDIRQ 1
+
 MODULE_AUTHOR("Alexander Stepanov");
 MODULE_LICENSE("GPL");
 
-static int irq = 1;
+static int irq = HANDLEDIRQ;
 static int irq_call_count = 0;
 static int dev_id;
 char tasklet_data[] = "tasklet_function was called";
@@ -30,10 +32,17 @@ void tasklet_function(unsigned long data)
 
 static irqreturn_t interrupt_handler(int irq, void *dev_id)
 {
-    irq_call_count++;
-    printk(KERN_INFO "[tasklet_module] irq call count = %d\n", irq_call_count);
-    tasklet_schedule(&tasklet);
-    return IRQ_NONE;
+    if (irq == HANDLEDIRQ)
+    {
+        irq_call_count++;
+        printk(KERN_INFO "[tasklet_module] irq call count = %d\n", irq_call_count);
+        tasklet_schedule(&tasklet);
+        return IRQ_HANDLED;
+    }
+    else
+    {
+        return IRQ_NONE;
+    }
 }
 
 static int __init tasklet_module_init(void)
